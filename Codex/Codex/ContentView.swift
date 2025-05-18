@@ -6,6 +6,7 @@ struct ContentView: View {
     @State private var tasks: [Task] = []
     @State private var taskFiles: [URL] = []
     @State private var selectedFile: URL?
+    @State private var searchText = ""
 
     private var tasksDirectory: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -38,17 +39,19 @@ struct ContentView: View {
                 Divider()
 
                 List {
-                    ForEach($tasks) { $task in
+                    ForEach(tasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
                         if task.isTask {
                             HStack {
                                 Button(action: {
-                                    task.isDone.toggle()
-                                    task.line = task.line.replacingOccurrences(
-                                        of: task.isDone ? "[ ]" : "[x]",
-                                        with: task.isDone ? "[x]" : "[ ]"
-                                    )
-                                    if let url = selectedFile {
-                                        TaskParser.save(tasks, to: url)
+                                    if let index = tasks.firstIndex(where: { $0.id == task.id }) {
+                                        tasks[index].isDone.toggle()
+                                        tasks[index].line = tasks[index].line.replacingOccurrences(
+                                            of: tasks[index].isDone ? "[ ]" : "[x]",
+                                            with: tasks[index].isDone ? "[x]" : "[ ]"
+                                        )
+                                        if let url = selectedFile {
+                                            TaskParser.save(tasks, to: url)
+                                        }
                                     }
                                 }) {
                                     Image(systemName: task.isDone ? "checkmark.square" : "square")
@@ -68,6 +71,7 @@ struct ContentView: View {
                         }
                     }
                 }
+                .searchable(text: $searchText)
                 .listStyle(.inset)
                 .frame(width: 300, height: 400)
             }
