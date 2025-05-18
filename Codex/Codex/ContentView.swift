@@ -1,6 +1,8 @@
-import SwiftUI
++import SwiftUI
 
 struct ContentView: View {
+    var updateTitle: (String) -> Void
+
     @State private var tasks: [Task] = []
     @State private var taskFiles: [URL] = []
     @State private var selectedFile: URL?
@@ -10,61 +12,79 @@ struct ContentView: View {
             .appendingPathComponent("tasks")
     }
 
-    var body: some View {
-        Group {
-            if let file = selectedFile {
-                VStack(alignment: .leading) {
-                    Button("Back") {
-                        selectedFile = nil
-                        tasks.removeAll()
-                    }
-                    List {
-                        ForEach($tasks) { $task in
-                            if task.isTask {
-                                HStack {
-                                    Button(action: {
-                                        task.isDone.toggle()
-                                        if task.isDone {
-                                            task.line = task.line.replacingOccurrences(of: "[ ]", with: "[x]")
-                                        } else {
-                                            task.line = task.line.replacingOccurrences(of: "[x]", with: "[ ]")
-                                        }
-                                        if let url = selectedFile {
-                                            TaskParser.save(tasks, to: url)
-                                        }
-                                    }) {
-                                        Image(systemName: task.isDone ? "checkmark.square" : "square")
-                                    }
-                                    .buttonStyle(.plain)
+    init(updateTitle: @escaping (String) -> Void) {
+        self.updateTitle = updateTitle
+    }
 
-                                    Text(task.text)
-                                        .strikethrough(task.isDone)
-                                }
-                                .padding(.leading, CGFloat(task.indent) * 10)
-                            } else {
-                                Text(task.text)
-                                    .font(task.line.trimmingCharacters(in: .whitespaces)
-                                        .hasPrefix("#") ? .headline : .body)
-                                    .padding(.vertical,
-                                             task.line.trimmingCharacters(in: .whitespaces)
-                                             .hasPrefix("#") ? 6 : 0)
-                                    .padding(.leading, CGFloat(task.indent) * 10)
-                            }
-                        }
-                    }
-                    .listStyle(.inset)
+    var body: some View {
+        if let file = selectedFile {
+            VStack(alignment: .leading) {
+                Button(action: {
+                    selectedFile = nil
+                    tasks.removeAll()
+                    updateTitle("Codex")
+                }) {
+                    Label("Back", systemImage: "chevron.left")
                 }
-                .onAppear { loadTasks(from: file) }
-            } else {
+                .buttonStyle(.plain)
+                .padding(.bottom, 4)
+
+                Text(file.deletingPathExtension().lastPathComponent)
+                    .font(.headline)
+                    .padding(.bottom, 2)
+
                 List {
-                    ForEach(taskFiles, id: \.self) { url in
-                        Button(url.deletingPathExtension().lastPathComponent) {
-                            selectedFile = url
+                    ForEach($tasks) { $task in
+                        if task.isTask {
+                            HStack {
+                                Button(action: {
+                                    task.isDone.toggle()
+                                    task.line = task.line.replacingOccurrences(
+                                        of: task.isDone ? "[ ]" : "[x]",
+                                        with: task.isDone ? "[x]" : "[ ]"
+                                    )
+                                    if let url = selectedFile {
+                                        TaskParser.save(tasks, to: url)
+                                    }
+                                }) {
+                                    Image(systemName: task.isDone ? "checkmark.square" : "square")
+                                }
+                                .buttonStyle(.plain)
+
+                                Text(task.text).strikethrough(task.isDone)
+                            }
+                            .padding(.leading, CGFloat(task.indent) * 10)
+                        } else {
+                            Text(task.text)
+                                .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#")
+                                      ? .headline : .body)
+                                .padding(.vertical,
+                                         task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
+                                .padding(.leading, CGFloat(task.indent) * 10)
                         }
                     }
                 }
                 .listStyle(.inset)
-                .onAppear(perform: loadTaskFiles)
+                .frame(width: 300, height: 400)
+            }
+            .onAppear {
+                loadTasks(from: file)
+                updateTitle(file.deletingPathExtension().lastPathComponent)
+            }
+        } else {
+            List {
+                ForEach(taskFiles, id: \.self) { url in
+                    Button(url.deletingPathExtension().lastPathComponent) {
+                        selectedFile = url
+                        updateTitle(url.deletingPathExtension().lastPathComponent)
+                    }
+                }
+            }
+            .listStyle(.inset)
+            .frame(width: 300, height: 400)
+            .onAppear {
+                loadTaskFiles()
+                updateTitle("Codex")
             }
         }
         .frame(minWidth: 300, minHeight: 400)
