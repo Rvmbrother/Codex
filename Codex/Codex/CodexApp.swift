@@ -16,7 +16,7 @@ struct CodexApp: App {
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem?
-    private let popover = NSPopover()
+    private var window: NSWindow?
     private var hotKeyRef: EventHotKeyRef?
     private var eventHandler: EventHandlerRef?
 
@@ -28,17 +28,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             button.target = self
         }
 
-        popover.behavior = .transient
-        popover.contentViewController = NSHostingController(rootView: ContentView())
+        let content = NSHostingController(rootView: ContentView())
+        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 320, height: 440),
+                          styleMask: [.titled, .closable, .resizable],
+                          backing: .buffered, defer: false)
+        window?.title = "Codex"
+        window?.isReleasedWhenClosed = false
+        window?.contentView = content.view
         registerHotKey()
     }
 
     @objc private func togglePopover() {
-        guard let button = statusItem?.button else { return }
-        if popover.isShown {
-            popover.performClose(nil)
+        guard let window else { return }
+        if window.isVisible {
+            window.orderOut(nil)
         } else {
-            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+            window.center()
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
         }
     }
 
