@@ -2,55 +2,84 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var tasks: [Task] = []
+    @State private var taskFiles: [URL] = []
+    @State private var selectedFile: URL?
 
-    private var tasksURL: URL {
+    private var tasksDirectory: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("tasks.md")
+            .appendingPathComponent("tasks")
     }
+
 
     var body: some View {
-        List {
-            ForEach($tasks) { $task in
-                if task.isTask {
-                    HStack {
-                        Button(action: {
-                            task.isDone.toggle()
-                            if task.isDone {
-                                task.line = task.line.replacingOccurrences(of: "[ ]", with: "[x]")
-                            } else {
-                                task.line = task.line.replacingOccurrences(of: "[x]", with: "[ ]")
-                            }
-                            TaskParser.save(tasks, to: tasksURL)
-                        }) {
-                            Image(systemName: task.isDone ? "checkmark.square" : "square")
-                        }
-                        .buttonStyle(.plain)
+        if let file = selectedFile {
+            VStack(alignment: .leading) {
+                Button("Back") {
+                    selectedFile = nil
+                    tasks.removeAll()
+                }
+                List {
+                    ForEach($tasks) { $task in
+                        if task.isTask {
+                            HStack {
+                                Button(action: {
+                                    task.isDone.toggle()
+                                    if task.isDone {
+                                        task.line = task.line.replacingOccurrences(of: "[ ]", with: "[x]")
+                                    } else {
+                                        task.line = task.line.replacingOccurrences(of: "[x]", with: "[ ]")
+                                    }
+                                    if let url = selectedFile {
+                                        TaskParser.save(tasks, to: url)
+                                    }
+                                }) {
+                                    Image(systemName: task.isDone ? "checkmark.square" : "square")
+                                }
+                                .buttonStyle(.plain)
 
-                        Text(task.text)
-                            .strikethrough(task.isDone)
+                                Text(task.text)
+                                    .strikethrough(task.isDone)
+                            }
+                            .padding(.leading, CGFloat(task.indent) * 10)
+                        } else {
+                            Text(task.text)
+                                .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? .headline : .body)
+                                .padding(.vertical, task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
+                                .padding(.leading, CGFloat(task.indent) * 10)
+                        }
                     }
-                    .padding(.leading, CGFloat(task.indent) * 10)
-                } else {
-                    Text(task.text)
-                        .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? .headline : .body)
-                        .padding(.vertical, task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
-                        .padding(.leading, CGFloat(task.indent) * 10)
+                }
+                .listStyle(.inset)
+                .frame(width: 300, height: 400)
+            }
+            .onAppear { loadTasks(from: file) }
+        } else {
+            List {
+                ForEach(taskFiles, id: \.self) { url in
+                    Button(url.deletingPathExtension().lastPathComponent) {
+                        selectedFile = url
+                    }
                 }
             }
+            .listStyle(.inset)
+            .frame(width: 300, height: 400)
+            .onAppear(perform: loadTaskFiles)
         }
-        .frame(width: 300, height: 400)
-
-        .listStyle(.inset)
-
-
-        .onAppear(perform: loadTasks)
     }
 
-    private func loadTasks() {
-        if !FileManager.default.fileExists(atPath: tasksURL.path) {
-            try? "".write(to: tasksURL, atomically: true, encoding: .utf8)
+    private func loadTaskFiles() {
+        if !FileManager.default.fileExists(atPath: tasksDirectory.path) {
+            try? FileManager.default.createDirectory(at: tasksDirectory, withIntermediateDirectories: true)
         }
-        tasks = TaskParser.load(from: tasksURL)
+        let files = (try? FileManager.default.contentsOfDirectory(at: tasksDirectory, includingPropertiesForKeys: nil)) ?? []
+        taskFiles = files.filter { $0.pathExtension.lowercased() == "md" }
+    }
+
+    private func loadTasks(from url: URL) {
+        if !FileManager.default.fileExists(atPath: url.path) {
+            try? "".write(to: url, atomically: true, encoding: .utf8)
+        }
+        tasks = TaskParser.load(from: url)
     }
 }
 
