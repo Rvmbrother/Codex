@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest-xlarge
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+      - name: Build Release
+        run: |
+          xcodebuild -project Codex.xcodeproj -scheme Codex -configuration Release -derivedDataPath DerivedData CODE_SIGN_IDENTITY="${{ secrets.CODE_SIGN_IDENTITY }}" DEVELOPMENT_TEAM="${{ secrets.DEVELOPMENT_TEAM }}" | xcpretty
+      - name: Create DMG
+        run: |
+          hdiutil create Codex.dmg -volname Codex -srcfolder DerivedData/Build/Products/Release/Codex.app
+      - name: Notarize
+        run: |
+          xcrun notarytool submit Codex.dmg --apple-id ${{ secrets.APPLE_ID }} --team-id ${{ secrets.TEAM_ID }} --password ${{ secrets.APP_SPECIFIC_PASSWORD }} --wait
+      - name: Staple
+        run: xcrun stapler staple Codex.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Codex.dmg
+          path: Codex.dmg
+
