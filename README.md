@@ -13,7 +13,9 @@ Run `swift build -c release` from the repository root. The package uses Swift 6
  - The menu-bar icon shows your task list. Press **⌥⌘T** to toggle the window from anywhere.
  - Tasks are read from `~/Documents/tasks.md`. Lines containing `[ ]` or `[x]` become interactive tasks. Other lines are shown as headings so larger checklists remain readable.
  - Checking or unchecking a task immediately rewrites `tasks.md`, so external edits are reflected next time the file is loaded.
+
  - Lines beginning with a dash (`-`) are displayed without the bullet for a cleaner list.
+
 
 Edit `tasks.md` with any text editor to manage your list.
 

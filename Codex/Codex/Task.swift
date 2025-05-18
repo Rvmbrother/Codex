@@ -9,6 +9,7 @@ struct Task: Identifiable {
     var text: String {
         var t = line.replacingOccurrences(of: "[x]", with: "")
             .replacingOccurrences(of: "[ ]", with: "")
+            .replacingOccurrences(of: "-", with: "")
             .trimmingCharacters(in: .whitespaces)
         if t.hasPrefix("-") {
             t = String(t.dropFirst()).trimmingCharacters(in: .whitespaces)
