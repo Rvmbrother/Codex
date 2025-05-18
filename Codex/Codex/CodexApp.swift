@@ -28,9 +28,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             button.target = self
         }
 
-        let content = NSHostingController(rootView: ContentView(updateTitle: { [weak self] title in
+        let scheme = UserDefaults.standard.string(forKey: "colorScheme") ?? "system"
+        let colorScheme: ColorScheme?
+        switch scheme {
+        case "light":
+            colorScheme = .light
+        case "dark":
+            colorScheme = .dark
+        default:
+            colorScheme = nil
+        }
+
+        let rootView = ContentView(updateTitle: { [weak self] title in
             self?.window?.title = title
-        }))
+        }).preferredColorScheme(colorScheme)
+
+        let content = NSHostingController(rootView: rootView)
         let defaultFrame = NSRect(x: 0, y: 0, width: 320, height: 440)
         window = NSWindow(contentRect: defaultFrame,
                           styleMask: [.titled, .closable, .resizable],
@@ -39,6 +52,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window?.isReleasedWhenClosed = false
         window?.contentView = content.view
         window?.delegate = self
+        window?.level = .floating
+        window?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
         if let frameString = UserDefaults.standard.string(forKey: "windowFrame") {
             window?.setFrame(NSRectFromString(frameString), display: false)

@@ -2,8 +2,10 @@ import SwiftUI
 import Carbon
 
 struct PreferencesView: View {
+
     @AppStorage("hotKeyKeyCode") private var keyCode: Int = Int(kVK_ANSI_E)
     @AppStorage("hotKeyModifiers") private var modifiers: Int = Int(cmdKey | shiftKey)
+
 
     var appDelegate: AppDelegate
 
@@ -47,6 +49,11 @@ struct PreferencesView: View {
             Toggle("Option (⌥)", isOn: modifierBinding(optionKey))
             Toggle("Shift (⇧)", isOn: modifierBinding(shiftKey))
             Toggle("Control (⌃)", isOn: modifierBinding(controlKey))
+            Picker("Appearance", selection: $colorScheme) {
+                Text("System").tag("system")
+                Text("Light").tag("light")
+                Text("Dark").tag("dark")
+            }
         }
         .padding(20)
         .onChange(of: keyCode) { _ in
