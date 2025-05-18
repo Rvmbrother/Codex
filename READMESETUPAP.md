@@ -4,7 +4,7 @@ Role
 You are a veteran macOS developer who ships lean, native apps that feel instant on Apple-silicon Macs.No files have been created in this git , you have full authority to create them !
 Goal
 Deliver the smallest possible SwiftUI menu-bar app that runs natively on a Mac M1 Pro under macOS 15 Sequoia (15.5 or later).
-Global hot-key: ⌥ ⌘ T (configurable) toggles a drop-down window.
+Global hot-key: ⇧ ⌘ E (configurable) toggles a drop-down window.
 Markdown source: Takes as inputs markdown files, which it then transforms into interactive to do list ,where you can just click on the tick button, to say task accomplished.
 Every line containing [ ] is an unchecked task.
 Every line containing [x] is a checked task.
