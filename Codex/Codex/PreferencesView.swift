@@ -58,14 +58,14 @@ struct PreferencesView: View {
         .frame(width: 200)
     }
 
-    private func modifierBinding(_ flag: Int32) -> Binding<Bool> {
+    private func modifierBinding(_ flag: Int) -> Binding<Bool> {
         Binding<Bool>(
-            get: { (modifiers & Int(flag)) != 0 },
+            get: { (modifiers & flag) != 0 },
             set: { newValue in
                 if newValue {
-                    modifiers |= Int(flag)
+                    modifiers |= flag
                 } else {
-                    modifiers &= ~Int(flag)
+                    modifiers &= ~flag
                 }
             }
         )
