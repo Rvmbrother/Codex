@@ -4,6 +4,7 @@ import Carbon
 struct PreferencesView: View {
     @AppStorage("hotKeyKeyCode") private var keyCode: Int = Int(kVK_ANSI_T)
     @AppStorage("hotKeyModifiers") private var modifiers: Int = Int(cmdKey | optionKey)
+    @AppStorage("colorScheme") private var colorScheme: String = "system"
 
     var appDelegate: AppDelegate
 
@@ -47,6 +48,11 @@ struct PreferencesView: View {
             Toggle("Option (⌥)", isOn: modifierBinding(optionKey))
             Toggle("Shift (⇧)", isOn: modifierBinding(shiftKey))
             Toggle("Control (⌃)", isOn: modifierBinding(controlKey))
+            Picker("Appearance", selection: $colorScheme) {
+                Text("System").tag("system")
+                Text("Light").tag("light")
+                Text("Dark").tag("dark")
+            }
         }
         .padding(20)
         .onChange(of: keyCode) { _ in
