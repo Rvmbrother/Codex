@@ -95,7 +95,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private func registerHotKey() {
         let code = UserDefaults.standard.integer(forKey: "hotKeyKeyCode")
         let mods = UserDefaults.standard.integer(forKey: "hotKeyModifiers")
-        registerHotKey(keyCode: UInt32(code == 0 ? Int(kVK_ANSI_T) : code), modifiers: UInt32(mods == 0 ? Int(cmdKey | optionKey) : mods))
+        registerHotKey(keyCode: UInt32(code == 0 ? Int(kVK_ANSI_E) : code), modifiers: UInt32(mods == 0 ? Int(cmdKey | shiftKey) : mods))
     }
 
     private func registerHotKey(keyCode: UInt32, modifiers: UInt32) {
