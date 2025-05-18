@@ -1,4 +1,3 @@
-What// swift-tools-version: 6.1
 import PackageDescription
 
 let package = Package(
@@ -13,7 +12,6 @@ let package = Package(
         .executableTarget(
             name: "Codex",
             path: "Codex",
-           ]
         )
     ]
 )
