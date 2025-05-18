@@ -28,7 +28,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             button.target = self
         }
 
-        let content = NSHostingController(rootView: ContentView())
+        let content = NSHostingController(rootView: ContentView(updateTitle: { [weak self] title in
+            self?.window?.title = title
+        }))
         let defaultFrame = NSRect(x: 0, y: 0, width: 320, height: 440)
         window = NSWindow(contentRect: defaultFrame,
                           styleMask: [.titled, .closable, .resizable],
