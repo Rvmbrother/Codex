@@ -97,12 +97,13 @@
             isa = XCBuildConfiguration;
             buildSettings = {
                 PRODUCT_NAME = "$(TARGET_NAME)";
-                SWIFT_VERSION = 6.0;
+                SWIFT_VERSION = 6.1;
+                SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
                 CODE_SIGN_IDENTITY = "-";
                 CODE_SIGNING_REQUIRED = NO;
                 CODE_SIGNING_ALLOWED = NO;
                 DEVELOPMENT_TEAM = "";
-                MACOSX_DEPLOYMENT_TARGET = 14.0;
+                MACOSX_DEPLOYMENT_TARGET = 15.5;
                 TARGETED_DEVICE_FAMILY = "1,2";
                 INFOPLIST_FILE = Info.plist;
             };
@@ -112,12 +113,13 @@
             isa = XCBuildConfiguration;
             buildSettings = {
                 PRODUCT_NAME = "$(TARGET_NAME)";
-                SWIFT_VERSION = 6.0;
+                SWIFT_VERSION = 6.1;
+                SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
                 CODE_SIGN_IDENTITY = "-";
                 CODE_SIGNING_REQUIRED = NO;
                 CODE_SIGNING_ALLOWED = NO;
                 DEVELOPMENT_TEAM = "";
-                MACOSX_DEPLOYMENT_TARGET = 14.0;
+                MACOSX_DEPLOYMENT_TARGET = 15.5;
                 TARGETED_DEVICE_FAMILY = "1,2";
                 INFOPLIST_FILE = Info.plist;
             };
