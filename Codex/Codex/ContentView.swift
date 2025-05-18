@@ -10,7 +10,6 @@ struct ContentView: View {
             .appendingPathComponent("tasks")
     }
 
-
     var body: some View {
         Group {
             if let file = selectedFile {
@@ -44,8 +43,11 @@ struct ContentView: View {
                                 .padding(.leading, CGFloat(task.indent) * 10)
                             } else {
                                 Text(task.text)
-                                    .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? .headline : .body)
-                                    .padding(.vertical, task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
+                                    .font(task.line.trimmingCharacters(in: .whitespaces)
+                                        .hasPrefix("#") ? .headline : .body)
+                                    .padding(.vertical,
+                                             task.line.trimmingCharacters(in: .whitespaces)
+                                             .hasPrefix("#") ? 6 : 0)
                                     .padding(.leading, CGFloat(task.indent) * 10)
                             }
                         }
@@ -70,9 +72,11 @@ struct ContentView: View {
 
     private func loadTaskFiles() {
         if !FileManager.default.fileExists(atPath: tasksDirectory.path) {
-            try? FileManager.default.createDirectory(at: tasksDirectory, withIntermediateDirectories: true)
+            try? FileManager.default.createDirectory(at: tasksDirectory,
+                                                     withIntermediateDirectories: true)
         }
-        let files = (try? FileManager.default.contentsOfDirectory(at: tasksDirectory, includingPropertiesForKeys: nil)) ?? []
+        let files = (try? FileManager.default.contentsOfDirectory(at: tasksDirectory,
+                                                                  includingPropertiesForKeys: nil)) ?? []
         taskFiles = files.filter { $0.pathExtension.lowercased() == "md" }
     }
 
@@ -83,5 +87,3 @@ struct ContentView: View {
         tasks = TaskParser.load(from: url)
     }
 }
-
-
