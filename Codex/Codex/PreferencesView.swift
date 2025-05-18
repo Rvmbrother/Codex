@@ -3,7 +3,7 @@ import Carbon
 
 struct PreferencesView: View {
     @AppStorage("hotKeyKeyCode") private var keyCode: Int = Int(kVK_ANSI_T)
-    @AppStorage("hotKeyModifiers") private var modifiers: Int = Int(cmdKey | optionKey)
+    @AppStorage("hotKeyModifiers") private var modifiers: Int = Int(cmdKey | shiftKey)
 
     var appDelegate: AppDelegate
 
