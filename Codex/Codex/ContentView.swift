@@ -1,4 +1,4 @@
-import SwiftUI
++import SwiftUI
 
 struct ContentView: View {
     var updateTitle: (String) -> Void
@@ -16,7 +16,6 @@ struct ContentView: View {
         self.updateTitle = updateTitle
     }
 
-
     var body: some View {
         if let file = selectedFile {
             VStack(alignment: .leading) {
@@ -29,20 +28,21 @@ struct ContentView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.bottom, 4)
+
                 Text(file.deletingPathExtension().lastPathComponent)
                     .font(.headline)
                     .padding(.bottom, 2)
+
                 List {
                     ForEach($tasks) { $task in
                         if task.isTask {
                             HStack {
                                 Button(action: {
                                     task.isDone.toggle()
-                                    if task.isDone {
-                                        task.line = task.line.replacingOccurrences(of: "[ ]", with: "[x]")
-                                    } else {
-                                        task.line = task.line.replacingOccurrences(of: "[x]", with: "[ ]")
-                                    }
+                                    task.line = task.line.replacingOccurrences(
+                                        of: task.isDone ? "[ ]" : "[x]",
+                                        with: task.isDone ? "[x]" : "[ ]"
+                                    )
                                     if let url = selectedFile {
                                         TaskParser.save(tasks, to: url)
                                     }
@@ -51,14 +51,15 @@ struct ContentView: View {
                                 }
                                 .buttonStyle(.plain)
 
-                                Text(task.text)
-                                    .strikethrough(task.isDone)
+                                Text(task.text).strikethrough(task.isDone)
                             }
                             .padding(.leading, CGFloat(task.indent) * 10)
                         } else {
                             Text(task.text)
-                                .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? .headline : .body)
-                                .padding(.vertical, task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
+                                .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#")
+                                      ? .headline : .body)
+                                .padding(.vertical,
+                                         task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
                                 .padding(.leading, CGFloat(task.indent) * 10)
                         }
                     }
@@ -86,13 +87,16 @@ struct ContentView: View {
                 updateTitle("Codex")
             }
         }
+        .frame(minWidth: 300, minHeight: 400)
     }
 
     private func loadTaskFiles() {
         if !FileManager.default.fileExists(atPath: tasksDirectory.path) {
-            try? FileManager.default.createDirectory(at: tasksDirectory, withIntermediateDirectories: true)
+            try? FileManager.default.createDirectory(at: tasksDirectory,
+                                                     withIntermediateDirectories: true)
         }
-        let files = (try? FileManager.default.contentsOfDirectory(at: tasksDirectory, includingPropertiesForKeys: nil)) ?? []
+        let files = (try? FileManager.default.contentsOfDirectory(at: tasksDirectory,
+                                                                  includingPropertiesForKeys: nil)) ?? []
         taskFiles = files.filter { $0.pathExtension.lowercased() == "md" }
     }
 
@@ -103,5 +107,3 @@ struct ContentView: View {
         tasks = TaskParser.load(from: url)
     }
 }
-
-

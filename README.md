@@ -10,6 +10,7 @@
 Run `swift build -c release` from the repository root. The package uses Swift 6.1 and targets macOS 15.5 or later.
 
 ## Using the App
+
 - The menu-bar icon shows your task list. Press **⌥⌘T** to toggle the window from anywhere.
 - When the window opens you see a list of Markdown files in `~/Documents/tasks`. Pick one to view its tasks.
 - The window can be resized like a normal macOS window.
