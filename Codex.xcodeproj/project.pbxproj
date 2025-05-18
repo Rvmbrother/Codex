@@ -1,0 +1,165 @@
+// !$*UTF8*$!
+{
+    archiveVersion = 1;
+    classes = {};
+    objectVersion = 55;
+    objects = {
+        /* Begin PBXBuildFile section */
+        123456789ABCDEF001 /* CodexApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123456789ABCDEF002 /* CodexApp.swift */; };
+        123456789ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123456789ABCDEF004 /* ContentView.swift */; };
+        /* End PBXBuildFile section */
+
+        /* Begin PBXFileReference section */
+        123456789ABCDEF002 /* CodexApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexApp.swift; sourceTree = "<group>"; };
+        123456789ABCDEF004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+        123456789ABCDEF00F /* Codex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Codex.app; sourceTree = BUILT_PRODUCTS_DIR; };
+        /* End PBXFileReference section */
+
+        /* Begin PBXGroup section */
+        123456789ABCDEF010 = {
+            isa = PBXGroup;
+            children = (
+                123456789ABCDEF011 /* Codex */,
+                123456789ABCDEF012 /* Products */,
+            );
+            sourceTree = "<group>";
+        };
+        123456789ABCDEF011 /* Codex */ = {
+            isa = PBXGroup;
+            children = (
+                123456789ABCDEF002 /* CodexApp.swift */,
+                123456789ABCDEF004 /* ContentView.swift */,
+            );
+            path = Codex;
+            sourceTree = "<group>";
+        };
+        123456789ABCDEF012 /* Products */ = {
+            isa = PBXGroup;
+            children = (
+                123456789ABCDEF00F /* Codex.app */,
+            );
+            name = Products;
+            sourceTree = "<group>";
+        };
+        /* End PBXGroup section */
+
+        /* Begin PBXNativeTarget section */
+        123456789ABCDEF020 /* Codex */ = {
+            isa = PBXNativeTarget;
+            buildConfigurationList = 123456789ABCDEF021 /* Build configuration list */;
+            buildPhases = (
+                123456789ABCDEF022 /* Sources */,
+                123456789ABCDEF023 /* Frameworks */,
+            );
+            buildRules = (
+            );
+            dependencies = (
+            );
+            name = Codex;
+            productName = Codex;
+            productType = "com.apple.product-type.application";
+            productReference = 123456789ABCDEF00F /* Codex.app */;
+        };
+        /* End PBXNativeTarget section */
+
+        /* Begin PBXSourcesBuildPhase section */
+        123456789ABCDEF022 /* Sources */ = {
+            isa = PBXSourcesBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+                123456789ABCDEF001 /* CodexApp.swift in Sources */,
+                123456789ABCDEF003 /* ContentView.swift in Sources */,
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+        };
+        /* End PBXSourcesBuildPhase section */
+
+        /* Begin PBXFrameworksBuildPhase section */
+        123456789ABCDEF023 /* Frameworks */ = {
+            isa = PBXFrameworksBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+        };
+        /* End PBXFrameworksBuildPhase section */
+
+        /* Begin XCBuildConfiguration section */
+        123456789ABCDEF024 /* Debug */ = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                PRODUCT_NAME = "$(TARGET_NAME)";
+                SWIFT_VERSION = 6.0;
+                CODE_SIGN_IDENTITY = "-";
+                CODE_SIGNING_REQUIRED = NO;
+                CODE_SIGNING_ALLOWED = NO;
+                DEVELOPMENT_TEAM = "";
+                MACOSX_DEPLOYMENT_TARGET = 14.0;
+                TARGETED_DEVICE_FAMILY = "1,2";
+                INFOPLIST_FILE = Info.plist;
+            };
+            name = Debug;
+        };
+        123456789ABCDEF025 /* Release */ = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                PRODUCT_NAME = "$(TARGET_NAME)";
+                SWIFT_VERSION = 6.0;
+                CODE_SIGN_IDENTITY = "-";
+                CODE_SIGNING_REQUIRED = NO;
+                CODE_SIGNING_ALLOWED = NO;
+                DEVELOPMENT_TEAM = "";
+                MACOSX_DEPLOYMENT_TARGET = 14.0;
+                TARGETED_DEVICE_FAMILY = "1,2";
+                INFOPLIST_FILE = Info.plist;
+            };
+            name = Release;
+        };
+        /* End XCBuildConfiguration section */
+
+        /* Begin XCConfigurationList section */
+        123456789ABCDEF021 /* Build configuration list */ = {
+            isa = XCConfigurationList;
+            buildConfigurations = (
+                123456789ABCDEF024 /* Debug */,
+                123456789ABCDEF025 /* Release */,
+            );
+            defaultConfigurationIsVisible = 0;
+            defaultConfigurationName = Release;
+        };
+        123456789ABCDEF040 /* Project configuration list */ = {
+            isa = XCConfigurationList;
+            buildConfigurations = (
+                123456789ABCDEF024 /* Debug */,
+                123456789ABCDEF025 /* Release */,
+            );
+            defaultConfigurationIsVisible = 0;
+            defaultConfigurationName = Release;
+        };
+        /* End XCConfigurationList section */
+
+        /* Begin PBXProject section */
+        123456789ABCDEF030 /* Project object */ = {
+            isa = PBXProject;
+            attributes = {
+                LastUpgradeCheck = 9999;
+                LastSwiftUpdateCheck = 9999;
+            };
+            buildConfigurationList = 123456789ABCDEF040 /* Project configuration list */;
+            compatibilityVersion = "Xcode 15.0";
+            developmentRegion = en;
+            hasScannedForEncodings = 0;
+            knownRegions = (
+                en,
+            );
+            mainGroup = 123456789ABCDEF010;
+            productRefGroup = 123456789ABCDEF012 /* Products */;
+            projectDirPath = "";
+            targets = (
+                123456789ABCDEF020 /* Codex */,
+            );
+        };
+        /* End PBXProject section */
+    };
+    rootObject = 123456789ABCDEF030 /* Project object */;
+}
