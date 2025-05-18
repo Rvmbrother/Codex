@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    var updateTitle: (String) -> Void
+
     @State private var tasks: [Task] = []
     @State private var taskFiles: [URL] = []
     @State private var selectedFile: URL?
@@ -10,14 +12,29 @@ struct ContentView: View {
             .appendingPathComponent("tasks")
     }
 
+    init(updateTitle: @escaping (String) -> Void) {
+        self.updateTitle = updateTitle
+    }
+
 
     var body: some View {
         if let file = selectedFile {
-            VStack(alignment: .leading) {
-                Button("Back") {
-                    selectedFile = nil
-                    tasks.removeAll()
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Button(action: {
+                        selectedFile = nil
+                        tasks.removeAll()
+                        updateTitle("Codex")
+                    }) {
+                        Image(systemName: "chevron.left")
+                    }
+                    .buttonStyle(.plain)
+
+                    Text(file.deletingPathExtension().lastPathComponent)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                Divider()
                 List {
                     ForEach($tasks) { $task in
                         if task.isTask {
@@ -52,18 +69,36 @@ struct ContentView: View {
                 .listStyle(.inset)
                 .frame(width: 300, height: 400)
             }
-            .onAppear { loadTasks(from: file) }
+            .onAppear {
+                loadTasks(from: file)
+                updateTitle(file.deletingPathExtension().lastPathComponent)
+            }
         } else {
-            List {
-                ForEach(taskFiles, id: \.self) { url in
-                    Button(url.deletingPathExtension().lastPathComponent) {
-                        selectedFile = url
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Task Lists")
+                    .font(.headline)
+                Divider()
+                if taskFiles.isEmpty {
+                    Text("No lists found")
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                } else {
+                    List {
+                        ForEach(taskFiles, id: \.self) { url in
+                            Button(url.deletingPathExtension().lastPathComponent) {
+                                selectedFile = url
+                                updateTitle(url.deletingPathExtension().lastPathComponent)
+                            }
+                        }
                     }
+                    .listStyle(.inset)
                 }
             }
-            .listStyle(.inset)
             .frame(width: 300, height: 400)
-            .onAppear(perform: loadTaskFiles)
+            .onAppear {
+                loadTaskFiles()
+                updateTitle("Codex")
+            }
         }
     }
 

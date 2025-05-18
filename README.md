@@ -16,6 +16,7 @@ Run `swift build -c release` from the repository root. The package uses Swift 6
 
  - Lines beginning with a dash (`-`) are displayed without the bullet for a cleaner list.
 
+The pop-up window title now shows the selected list name so you always know which file you're editing. Closing the list sets the title back to **Codex**.
 
 Add or edit `.md` files inside the `tasks` folder with any text editor to manage your lists.
 
