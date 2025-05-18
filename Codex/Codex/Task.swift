@@ -5,11 +5,11 @@ struct Task: Identifiable {
     var line: String
     var isTask: Bool
     var isDone: Bool
+    let indent: Int
 
     var text: String {
         var t = line.replacingOccurrences(of: "[x]", with: "")
             .replacingOccurrences(of: "[ ]", with: "")
-            .replacingOccurrences(of: "-", with: "")
             .trimmingCharacters(in: .whitespaces)
         if t.hasPrefix("-") {
             t = String(t.dropFirst()).trimmingCharacters(in: .whitespaces)
@@ -27,7 +27,8 @@ struct TaskParser {
             let str = String(line)
             let isTask = str.contains("[ ]") || str.contains("[x]")
             let isDone = isTask && str.contains("[x]")
-            tasks.append(Task(id: index, line: str, isTask: isTask, isDone: isDone))
+            let indent = str.prefix { $0 == " " || $0 == "\t" }.count
+            tasks.append(Task(id: index, line: str, isTask: isTask, isDone: isDone, indent: indent))
         }
         return tasks
     }

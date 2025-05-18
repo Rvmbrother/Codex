@@ -29,10 +29,12 @@ struct ContentView: View {
                         Text(task.text)
                             .strikethrough(task.isDone)
                     }
+                    .padding(.leading, CGFloat(task.indent) * 10)
                 } else {
                     Text(task.text)
                         .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? .headline : .body)
                         .padding(.vertical, task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
+                        .padding(.leading, CGFloat(task.indent) * 10)
                 }
             }
         }
