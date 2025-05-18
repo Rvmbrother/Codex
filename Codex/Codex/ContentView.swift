@@ -37,7 +37,10 @@ struct ContentView: View {
             }
         }
         .frame(width: 300, height: 400)
-        .listStyle(.insetGrouped)
+
+        .listStyle(.inset)
+
+
         .onAppear(perform: loadTasks)
     }
 

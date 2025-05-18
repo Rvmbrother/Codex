@@ -7,10 +7,14 @@ struct Task: Identifiable {
     var isDone: Bool
 
     var text: String {
-        line.replacingOccurrences(of: "[x]", with: "")
+        var t = line.replacingOccurrences(of: "[x]", with: "")
             .replacingOccurrences(of: "[ ]", with: "")
             .replacingOccurrences(of: "-", with: "")
             .trimmingCharacters(in: .whitespaces)
+        if t.hasPrefix("-") {
+            t = String(t.dropFirst()).trimmingCharacters(in: .whitespaces)
+        }
+        return t
     }
 }
 
