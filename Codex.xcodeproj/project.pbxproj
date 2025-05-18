@@ -6,13 +6,15 @@
     objects = {
         /* Begin PBXBuildFile section */
         123456789ABCDEF001 /* CodexApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123456789ABCDEF002 /* CodexApp.swift */; };
-        123456789ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123456789ABCDEF004 /* ContentView.swift */; };
+       123456789ABCDEF003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123456789ABCDEF004 /* ContentView.swift */; };
+       123456789ABCDEF006 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 123456789ABCDEF005 /* Task.swift */; };
         /* End PBXBuildFile section */
 
         /* Begin PBXFileReference section */
         123456789ABCDEF002 /* CodexApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexApp.swift; sourceTree = "<group>"; };
-        123456789ABCDEF004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-        123456789ABCDEF00F /* Codex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Codex.app; sourceTree = BUILT_PRODUCTS_DIR; };
+       123456789ABCDEF004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+       123456789ABCDEF005 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+       123456789ABCDEF00F /* Codex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Codex.app; sourceTree = BUILT_PRODUCTS_DIR; };
         /* End PBXFileReference section */
 
         /* Begin PBXGroup section */
@@ -27,12 +29,13 @@
         123456789ABCDEF011 /* Codex */ = {
             isa = PBXGroup;
             children = (
-                123456789ABCDEF002 /* CodexApp.swift */,
-                123456789ABCDEF004 /* ContentView.swift */,
-            );
-            path = Codex;
-            sourceTree = "<group>";
-        };
+               123456789ABCDEF002 /* CodexApp.swift */,
+               123456789ABCDEF004 /* ContentView.swift */,
+               123456789ABCDEF005 /* Task.swift */,
+           );
+           path = Codex;
+           sourceTree = "<group>";
+       };
         123456789ABCDEF012 /* Products */ = {
             isa = PBXGroup;
             children = (
@@ -67,11 +70,12 @@
             isa = PBXSourcesBuildPhase;
             buildActionMask = 2147483647;
             files = (
-                123456789ABCDEF001 /* CodexApp.swift in Sources */,
-                123456789ABCDEF003 /* ContentView.swift in Sources */,
-            );
-            runOnlyForDeploymentPostprocessing = 0;
-        };
+               123456789ABCDEF001 /* CodexApp.swift in Sources */,
+               123456789ABCDEF003 /* ContentView.swift in Sources */,
+               123456789ABCDEF006 /* Task.swift in Sources */,
+           );
+           runOnlyForDeploymentPostprocessing = 0;
+       };
         /* End PBXSourcesBuildPhase section */
 
         /* Begin PBXFrameworksBuildPhase section */
