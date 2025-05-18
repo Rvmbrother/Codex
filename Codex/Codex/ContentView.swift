@@ -16,22 +16,26 @@ struct ContentView: View {
         self.updateTitle = updateTitle
     }
 
+
+
     var body: some View {
         if let file = selectedFile {
-            VStack(alignment: .leading) {
-                Button(action: {
-                    selectedFile = nil
-                    tasks.removeAll()
-                    updateTitle("Codex")
-                }) {
-                    Label("Back", systemImage: "chevron.left")
-                }
-                .buttonStyle(.plain)
-                .padding(.bottom, 4)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Button(action: {
+                        selectedFile = nil
+                        tasks.removeAll()
+                        updateTitle("Codex")
+                    }) {
+                        Image(systemName: "chevron.left")
+                    }
+                    .buttonStyle(.plain)
 
-                Text(file.deletingPathExtension().lastPathComponent)
-                    .font(.headline)
-                    .padding(.bottom, 2)
+                    Text(file.deletingPathExtension().lastPathComponent)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                Divider()
 
                 List {
                     ForEach($tasks) { $task in
@@ -72,15 +76,28 @@ struct ContentView: View {
                 updateTitle(file.deletingPathExtension().lastPathComponent)
             }
         } else {
-            List {
-                ForEach(taskFiles, id: \.self) { url in
-                    Button(url.deletingPathExtension().lastPathComponent) {
-                        selectedFile = url
-                        updateTitle(url.deletingPathExtension().lastPathComponent)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Task Lists")
+                    .font(.headline)
+                Divider()
+                if taskFiles.isEmpty {
+                    Text("No lists found")
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                } else {
+                    List {
+                        ForEach(taskFiles, id: \.self) { url in
+                            Button(url.deletingPathExtension().lastPathComponent) {
+                                selectedFile = url
+                                updateTitle(url.deletingPathExtension().lastPathComponent)
+                            }
+                        }
+
                     }
+                    .listStyle(.inset)
                 }
             }
-            .listStyle(.inset)
             .frame(width: 300, height: 400)
             .onAppear {
                 loadTaskFiles()
