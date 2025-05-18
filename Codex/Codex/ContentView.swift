@@ -11,26 +11,33 @@ struct ContentView: View {
     var body: some View {
         List {
             ForEach($tasks) { $task in
-                HStack {
-                    Button(action: {
-                        task.isDone.toggle()
-                        if task.isDone {
-                            task.line = task.line.replacingOccurrences(of: "[ ]", with: "[x]")
-                        } else {
-                            task.line = task.line.replacingOccurrences(of: "[x]", with: "[ ]")
+                if task.isTask {
+                    HStack {
+                        Button(action: {
+                            task.isDone.toggle()
+                            if task.isDone {
+                                task.line = task.line.replacingOccurrences(of: "[ ]", with: "[x]")
+                            } else {
+                                task.line = task.line.replacingOccurrences(of: "[x]", with: "[ ]")
+                            }
+                            TaskParser.save(tasks, to: tasksURL)
+                        }) {
+                            Image(systemName: task.isDone ? "checkmark.square" : "square")
                         }
-                        TaskParser.save(tasks, to: tasksURL)
-                    }) {
-                        Image(systemName: task.isDone ? "checkmark.square" : "square")
-                    }
-                    .buttonStyle(.plain)
+                        .buttonStyle(.plain)
 
+                        Text(task.text)
+                            .strikethrough(task.isDone)
+                    }
+                } else {
                     Text(task.text)
-                        .strikethrough(task.isDone)
+                        .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? .headline : .body)
+                        .padding(.vertical, task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
                 }
             }
         }
-        .frame(width: 220, height: 200)
+        .frame(width: 300, height: 400)
+        .listStyle(.inset)
         .onAppear(perform: loadTasks)
     }
 
