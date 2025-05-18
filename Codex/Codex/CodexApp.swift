@@ -14,7 +14,7 @@ struct CodexApp: App {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var statusItem: NSStatusItem?
     private var window: NSWindow?
     private var hotKeyRef: EventHotKeyRef?
@@ -29,23 +29,49 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let content = NSHostingController(rootView: ContentView())
-        window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 320, height: 440),
+        let defaultFrame = NSRect(x: 0, y: 0, width: 320, height: 440)
+        window = NSWindow(contentRect: defaultFrame,
                           styleMask: [.titled, .closable, .resizable],
                           backing: .buffered, defer: false)
         window?.title = "Codex"
         window?.isReleasedWhenClosed = false
         window?.contentView = content.view
+        window?.delegate = self
+
+        if let frameString = UserDefaults.standard.string(forKey: "windowFrame") {
+            window?.setFrame(NSRectFromString(frameString), display: false)
+        }
         registerHotKey()
     }
 
     @objc private func togglePopover() {
         guard let window else { return }
         if window.isVisible {
+            saveWindowFrame()
             window.orderOut(nil)
         } else {
-            window.center()
+            if let frameString = UserDefaults.standard.string(forKey: "windowFrame") {
+                window.setFrame(NSRectFromString(frameString), display: false)
+            } else {
+                window.center()
+            }
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
+        }
+    }
+
+    func windowDidMove(_ notification: Notification) {
+        saveWindowFrame()
+    }
+
+    func windowDidEndLiveResize(_ notification: Notification) {
+        saveWindowFrame()
+    }
+
+    private func saveWindowFrame() {
+        if let window {
+            let str = NSStringFromRect(window.frame)
+            UserDefaults.standard.set(str, forKey: "windowFrame")
         }
     }
 
