@@ -8,6 +8,12 @@ struct ContentView: View {
     @State private var selectedFile: URL?
     @State private var searchText = ""
 
+    private var progress: (done: Int, total: Int) {
+        let taskItems = tasks.filter { $0.isTask }
+        let done = taskItems.filter { $0.isDone }.count
+        return (done, taskItems.count)
+    }
+
     private var tasksDirectory: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("tasks")
@@ -37,6 +43,10 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Divider()
+
+                Text("\(progress.done)/\(progress.total) done")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
 
                 List {
                     ForEach(tasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
