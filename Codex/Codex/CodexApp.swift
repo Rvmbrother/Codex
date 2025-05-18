@@ -39,6 +39,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window?.isReleasedWhenClosed = false
         window?.contentView = content.view
         window?.delegate = self
+        window?.level = .floating
+        window?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
 
         if let frameString = UserDefaults.standard.string(forKey: "windowFrame") {
             window?.setFrame(NSRectFromString(frameString), display: false)
