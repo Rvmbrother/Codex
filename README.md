@@ -12,8 +12,8 @@ Run `swift build -c release` from the repository root. The package uses Swift 6
 ## Using the App
  - The menu-bar icon shows your task list. Press **⌥⌘T** to toggle the window from anywhere.
  - When the window opens you see a list of Markdown files in `~/Documents/tasks`. Pick one to view its tasks.
+ - The window can be resized like a normal macOS window.
  - Lines containing `[ ]` or `[x]` become interactive checkboxes. Checking or unchecking immediately writes the change back to the selected file.
-
  - Lines beginning with a dash (`-`) are displayed without the bullet for a cleaner list.
 
 
