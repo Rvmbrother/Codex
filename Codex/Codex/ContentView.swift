@@ -83,7 +83,7 @@ struct ContentView: View {
                 }
                 .searchable(text: $searchText)
                 .listStyle(.inset)
-                .frame(width: 300, height: 400)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .onAppear {
                 loadTasks(from: file)
@@ -112,7 +112,7 @@ struct ContentView: View {
                     .listStyle(.inset)
                 }
             }
-            .frame(width: 300, height: 400)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .onAppear {
                 loadTaskFiles()
                 updateTitle("Codex")
