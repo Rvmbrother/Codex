@@ -100,6 +100,9 @@ struct ContentView: View {
                         }
                     }
                     .onDelete(perform: deleteTasks)
+
+                    .onMove(perform: move)
+
                 }
                 .searchable(text: $searchText)
                 .listStyle(.inset)
@@ -166,4 +169,16 @@ struct ContentView: View {
         }
         tasks = TaskParser.load(from: url)
     }
+
+    private func move(from source: IndexSet, to destination: Int) {
+        guard searchText.isEmpty else { return }
+        tasks.move(fromOffsets: source, toOffset: destination)
+        for index in tasks.indices {
+            tasks[index].id = index
+        }
+        if let url = selectedFile {
+            TaskParser.save(tasks, to: url)
+        }
+    }
+
 }
