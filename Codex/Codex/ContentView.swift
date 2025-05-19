@@ -1,4 +1,4 @@
-+import SwiftUI
+import SwiftUI
 
 struct ContentView: View {
     var updateTitle: (String) -> Void
@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var taskFiles: [URL] = []
     @State private var selectedFile: URL?
     @State private var searchText = ""
+
     @State private var tick = Date()
 
     private let defaultDuration: TimeInterval = 60 * 25
@@ -23,6 +24,7 @@ struct ContentView: View {
     private var currentTask: Task? {
         scheduledTasks.first { !$0.isDone && ($0.scheduledTime ?? Date.distantFuture) <= tick }
     }
+
 
     private var progress: (done: Int, total: Int) {
         let taskItems = tasks.filter { $0.isTask }
@@ -64,12 +66,31 @@ struct ContentView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
 
+
                 if let current = currentTask,
                    let start = current.scheduledTime {
                     let remaining = max(0, start.addingTimeInterval(defaultDuration).timeIntervalSince(tick))
                     Text("\u23F1 " + timeString(from: remaining))
                         .font(.subheadline)
                         .monospacedDigit()
+
+                HStack {
+                    TextField("New Task", text: $newTaskText)
+                    Button("Add") {
+                        let line = "[ ] " + newTaskText
+                        let task = Task(id: tasks.count,
+                                        line: line,
+                                        isTask: true,
+                                        isDone: false,
+                                        indent: 0)
+                        tasks.append(task)
+                        if let url = selectedFile {
+                            TaskParser.save(tasks, to: url)
+                        }
+                        newTaskText = ""
+                    }
+                    .disabled(newTaskText.trimmingCharacters(in: .whitespaces).isEmpty)
+
                 }
 
                 List {
@@ -87,9 +108,16 @@ struct ContentView: View {
                             }
                         }
                     }
+
                     ForEach(tasks.filter { !$0.isTask && (searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText)) }) { task in
                         row(for: task)
                     }
+
+                    .onDelete(perform: deleteTasks)
+
+                    .onMove(perform: move)
+
+
                 }
                 .searchable(text: $searchText)
                 .listStyle(.inset)
@@ -149,12 +177,22 @@ struct ContentView: View {
         taskFiles = files.filter { $0.pathExtension.lowercased() == "md" }
     }
 
+    private func deleteTasks(at offsets: IndexSet) {
+        let filtered = tasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }
+        let ids = offsets.map { filtered[$0].id }
+        tasks.removeAll { ids.contains($0.id) }
+        if let url = selectedFile {
+            TaskParser.save(tasks, to: url)
+        }
+    }
+
     private func loadTasks(from url: URL) {
         if !FileManager.default.fileExists(atPath: url.path) {
             try? "".write(to: url, atomically: true, encoding: .utf8)
         }
         tasks = TaskParser.load(from: url)
     }
+
 
     private func toggle(_ task: Task) {
         if let index = tasks.firstIndex(where: { $0.id == task.id }) {
@@ -209,3 +247,17 @@ struct ContentView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 }
+
+    private func move(from source: IndexSet, to destination: Int) {
+        guard searchText.isEmpty else { return }
+        tasks.move(fromOffsets: source, toOffset: destination)
+        for index in tasks.indices {
+            tasks[index].id = index
+        }
+        if let url = selectedFile {
+            TaskParser.save(tasks, to: url)
+        }
+    }
+
+}
+
