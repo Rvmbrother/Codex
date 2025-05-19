@@ -80,6 +80,7 @@ struct ContentView: View {
                                 .padding(.leading, CGFloat(task.indent) * 10)
                         }
                     }
+                    .onDelete(perform: deleteTasks)
                 }
                 .searchable(text: $searchText)
                 .listStyle(.inset)
@@ -129,6 +130,15 @@ struct ContentView: View {
         let files = (try? FileManager.default.contentsOfDirectory(at: tasksDirectory,
                                                                   includingPropertiesForKeys: nil)) ?? []
         taskFiles = files.filter { $0.pathExtension.lowercased() == "md" }
+    }
+
+    private func deleteTasks(at offsets: IndexSet) {
+        let filtered = tasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }
+        let ids = offsets.map { filtered[$0].id }
+        tasks.removeAll { ids.contains($0.id) }
+        if let url = selectedFile {
+            TaskParser.save(tasks, to: url)
+        }
     }
 
     private func loadTasks(from url: URL) {
