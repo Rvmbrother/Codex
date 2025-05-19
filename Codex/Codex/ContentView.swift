@@ -1,4 +1,4 @@
-+import SwiftUI
+import SwiftUI
 
 struct ContentView: View {
     var updateTitle: (String) -> Void
@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var taskFiles: [URL] = []
     @State private var selectedFile: URL?
     @State private var searchText = ""
+    @State private var newTaskText = ""
 
     private var progress: (done: Int, total: Int) {
         let taskItems = tasks.filter { $0.isTask }
@@ -47,6 +48,24 @@ struct ContentView: View {
                 Text("\(progress.done)/\(progress.total) done")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+
+                HStack {
+                    TextField("New Task", text: $newTaskText)
+                    Button("Add") {
+                        let line = "[ ] " + newTaskText
+                        let task = Task(id: tasks.count,
+                                        line: line,
+                                        isTask: true,
+                                        isDone: false,
+                                        indent: 0)
+                        tasks.append(task)
+                        if let url = selectedFile {
+                            TaskParser.save(tasks, to: url)
+                        }
+                        newTaskText = ""
+                    }
+                    .disabled(newTaskText.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
 
                 List {
                     ForEach(tasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
