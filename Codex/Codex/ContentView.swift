@@ -100,7 +100,9 @@ struct ContentView: View {
                         }
                     }
                     .onDelete(perform: deleteTasks)
+
                     .onMove(perform: move)
+
                 }
                 .searchable(text: $searchText)
                 .listStyle(.inset)
@@ -178,4 +180,5 @@ struct ContentView: View {
             TaskParser.save(tasks, to: url)
         }
     }
+
 }
