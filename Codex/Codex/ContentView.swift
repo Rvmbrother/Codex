@@ -80,6 +80,7 @@ struct ContentView: View {
                                 .padding(.leading, CGFloat(task.indent) * 10)
                         }
                     }
+                    .onMove(perform: move)
                 }
                 .searchable(text: $searchText)
                 .listStyle(.inset)
@@ -136,5 +137,16 @@ struct ContentView: View {
             try? "".write(to: url, atomically: true, encoding: .utf8)
         }
         tasks = TaskParser.load(from: url)
+    }
+
+    private func move(from source: IndexSet, to destination: Int) {
+        guard searchText.isEmpty else { return }
+        tasks.move(fromOffsets: source, toOffset: destination)
+        for index in tasks.indices {
+            tasks[index].id = index
+        }
+        if let url = selectedFile {
+            TaskParser.save(tasks, to: url)
+        }
     }
 }
