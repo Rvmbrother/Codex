@@ -13,17 +13,10 @@ struct ContentView: View {
 
     private let defaultDuration: TimeInterval = 60 * 25
 
-    private var scheduledTasks: [Task] {
-        tasks.filter { $0.isTask && $0.scheduledTime != nil }
-            .sorted { $0.scheduledTime! < $1.scheduledTime! }
-    }
-
-    private var unscheduledTasks: [Task] {
-        tasks.filter { $0.isTask && $0.scheduledTime == nil }
-    }
-
     private var currentTask: Task? {
-        scheduledTasks.first { !$0.isDone && ($0.scheduledTime ?? Date.distantFuture) <= tick }
+        tasks.filter { $0.isTask && !$0.isDone && ($0.scheduledTime ?? .distantFuture) <= tick }
+            .sorted { ($0.scheduledTime ?? .distantFuture) < ($1.scheduledTime ?? .distantFuture) }
+            .first
     }
 
 
@@ -97,30 +90,11 @@ struct ContentView: View {
                 }
 
                 List {
-                    if !scheduledTasks.isEmpty {
-                        Section("Scheduled") {
-                            ForEach(scheduledTasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
-                                row(for: task)
-                            }
-                        }
-                    }
-                    if !unscheduledTasks.isEmpty {
-                        Section("Unscheduled") {
-                            ForEach(unscheduledTasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
-                                row(for: task)
-                            }
-                        }
-                    }
-
-                    ForEach(tasks.filter { !$0.isTask && (searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText)) }) { task in
+                    ForEach(tasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
                         row(for: task)
                     }
-
                     .onDelete(perform: deleteTasks)
-
                     .onMove(perform: move)
-
-
                 }
                 .searchable(text: $searchText)
                 .listStyle(.inset)
