@@ -45,6 +45,7 @@ struct ContentView: View {
 
 
     var body: some View {
+        Group {
         if let file = selectedFile {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
@@ -165,6 +166,7 @@ struct ContentView: View {
                 loadTaskFiles()
                 updateTitle("Codex")
             }
+        }
         }
         .frame(minWidth: 300, minHeight: 400)
     }
