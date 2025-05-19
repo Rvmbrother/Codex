@@ -5,6 +5,7 @@ struct PreferencesView: View {
 
     @AppStorage("hotKeyKeyCode") private var keyCode: Int = Int(kVK_ANSI_E)
     @AppStorage("hotKeyModifiers") private var modifiers: Int = Int(cmdKey | shiftKey)
+    @AppStorage("colorScheme") private var colorScheme: String = "system"
 
 
     var appDelegate: AppDelegate

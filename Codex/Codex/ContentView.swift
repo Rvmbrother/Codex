@@ -70,7 +70,7 @@ struct ContentView: View {
                 if let current = currentTask,
                    let start = current.scheduledTime {
                     let remaining = max(0, start.addingTimeInterval(defaultDuration).timeIntervalSince(tick))
-                    Text("\u23F1 " + timeString(from: remaining))
+                    Text("\u{23F1} " + timeString(from: remaining))
                         .font(.subheadline)
                         .monospacedDigit()
 
