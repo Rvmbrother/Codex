@@ -7,6 +7,22 @@ struct ContentView: View {
     @State private var taskFiles: [URL] = []
     @State private var selectedFile: URL?
     @State private var searchText = ""
+    @State private var tick = Date()
+
+    private let defaultDuration: TimeInterval = 60 * 25
+
+    private var scheduledTasks: [Task] {
+        tasks.filter { $0.isTask && $0.scheduledTime != nil }
+            .sorted { $0.scheduledTime! < $1.scheduledTime! }
+    }
+
+    private var unscheduledTasks: [Task] {
+        tasks.filter { $0.isTask && $0.scheduledTime == nil }
+    }
+
+    private var currentTask: Task? {
+        scheduledTasks.first { !$0.isDone && ($0.scheduledTime ?? Date.distantFuture) <= tick }
+    }
 
     private var progress: (done: Int, total: Int) {
         let taskItems = tasks.filter { $0.isTask }
@@ -48,37 +64,31 @@ struct ContentView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
 
-                List {
-                    ForEach(tasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
-                        if task.isTask {
-                            HStack {
-                                Button(action: {
-                                    if let index = tasks.firstIndex(where: { $0.id == task.id }) {
-                                        tasks[index].isDone.toggle()
-                                        tasks[index].line = tasks[index].line.replacingOccurrences(
-                                            of: tasks[index].isDone ? "[ ]" : "[x]",
-                                            with: tasks[index].isDone ? "[x]" : "[ ]"
-                                        )
-                                        if let url = selectedFile {
-                                            TaskParser.save(tasks, to: url)
-                                        }
-                                    }
-                                }) {
-                                    Image(systemName: task.isDone ? "checkmark.square" : "square")
-                                }
-                                .buttonStyle(.plain)
+                if let current = currentTask,
+                   let start = current.scheduledTime {
+                    let remaining = max(0, start.addingTimeInterval(defaultDuration).timeIntervalSince(tick))
+                    Text("\u23F1 " + timeString(from: remaining))
+                        .font(.subheadline)
+                        .monospacedDigit()
+                }
 
-                                Text(task.text).strikethrough(task.isDone)
+                List {
+                    if !scheduledTasks.isEmpty {
+                        Section("Scheduled") {
+                            ForEach(scheduledTasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
+                                row(for: task)
                             }
-                            .padding(.leading, CGFloat(task.indent) * 10)
-                        } else {
-                            Text(task.text)
-                                .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#")
-                                      ? .headline : .body)
-                                .padding(.vertical,
-                                         task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
-                                .padding(.leading, CGFloat(task.indent) * 10)
                         }
+                    }
+                    if !unscheduledTasks.isEmpty {
+                        Section("Unscheduled") {
+                            ForEach(unscheduledTasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }) { task in
+                                row(for: task)
+                            }
+                        }
+                    }
+                    ForEach(tasks.filter { !$0.isTask && (searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText)) }) { task in
+                        row(for: task)
                     }
                 }
                 .searchable(text: $searchText)
@@ -88,6 +98,14 @@ struct ContentView: View {
             .onAppear {
                 loadTasks(from: file)
                 updateTitle(file.deletingPathExtension().lastPathComponent)
+            }
+            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { date in
+                tick = date
+                if let running = currentTask,
+                   running.actualStart == nil,
+                   let index = tasks.firstIndex(where: { $0.id == running.id }) {
+                    tasks[index].actualStart = date
+                }
             }
         } else {
 
@@ -136,5 +154,58 @@ struct ContentView: View {
             try? "".write(to: url, atomically: true, encoding: .utf8)
         }
         tasks = TaskParser.load(from: url)
+    }
+
+    private func toggle(_ task: Task) {
+        if let index = tasks.firstIndex(where: { $0.id == task.id }) {
+            tasks[index].isDone.toggle()
+            tasks[index].line = tasks[index].line.replacingOccurrences(
+                of: tasks[index].isDone ? "[ ]" : "[x]",
+                with: tasks[index].isDone ? "[x]" : "[ ]"
+            )
+            if tasks[index].isDone {
+                tasks[index].actualEnd = Date()
+            } else {
+                tasks[index].actualEnd = nil
+            }
+            if let url = selectedFile {
+                TaskParser.save(tasks, to: url)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func row(for task: Task) -> some View {
+        if task.isTask {
+            HStack {
+                Button(action: { toggle(task) }) {
+                    Image(systemName: task.isDone ? "checkmark.square" : "square")
+                }
+                .buttonStyle(.plain)
+
+                Text(task.text).strikethrough(task.isDone)
+                if let time = task.scheduledTime {
+                    Spacer()
+                    Text(time, style: .time)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.leading, CGFloat(task.indent) * 10)
+        } else {
+            Text(task.text)
+                .font(task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#")
+                      ? .headline : .body)
+                .padding(.vertical,
+                         task.line.trimmingCharacters(in: .whitespaces).hasPrefix("#") ? 6 : 0)
+                .padding(.leading, CGFloat(task.indent) * 10)
+        }
+    }
+
+    private func timeString(from interval: TimeInterval) -> String {
+        let totalSeconds = Int(interval)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 }
