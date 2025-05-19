@@ -7,6 +7,7 @@ struct ContentView: View {
     @State private var taskFiles: [URL] = []
     @State private var selectedFile: URL?
     @State private var searchText = ""
+    @State private var newTaskText = ""
 
     @State private var tick = Date()
 
@@ -73,6 +74,7 @@ struct ContentView: View {
                     Text("\u{23F1} " + timeString(from: remaining))
                         .font(.subheadline)
                         .monospacedDigit()
+                }
 
                 HStack {
                     TextField("New Task", text: $newTaskText)
@@ -246,7 +248,6 @@ struct ContentView: View {
         let seconds = totalSeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
-}
 
     private func move(from source: IndexSet, to destination: Int) {
         guard searchText.isEmpty else { return }
@@ -258,6 +259,5 @@ struct ContentView: View {
             TaskParser.save(tasks, to: url)
         }
     }
-
 }
 

@@ -1,7 +1,7 @@
 import Foundation
 
 struct Task: Identifiable {
-    let id: Int
+    var id: Int
     var line: String
     var isTask: Bool
     var isDone: Bool
