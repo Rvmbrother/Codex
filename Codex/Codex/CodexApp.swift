@@ -23,12 +23,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "checkmark.circle", accessibilityDescription: "Codex")
+            button.image = NSImage(systemSymbolName: "checkmark.circle.fill", accessibilityDescription: "Codex")
             button.action = #selector(togglePopover)
             button.target = self
         }
 
-        let scheme = UserDefaults.standard.string(forKey: "colorScheme") ?? "system"
+        // Default to dark mode if not set
+        if UserDefaults.standard.object(forKey: "colorScheme") == nil {
+            UserDefaults.standard.set("dark", forKey: "colorScheme")
+        }
+
+        let scheme = UserDefaults.standard.string(forKey: "colorScheme") ?? "dark"
         let colorScheme: ColorScheme?
         switch scheme {
         case "light":
@@ -44,16 +49,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }).preferredColorScheme(colorScheme)
 
         let content = NSHostingController(rootView: rootView)
-        let defaultFrame = NSRect(x: 0, y: 0, width: 320, height: 440)
+        let defaultFrame = NSRect(x: 0, y: 0, width: 360, height: 520)
         window = NSWindow(contentRect: defaultFrame,
-                          styleMask: [.titled, .closable, .resizable],
+                          styleMask: [.titled, .closable, .resizable, .fullSizeContentView],
                           backing: .buffered, defer: false)
         window?.title = "Codex"
+        window?.titlebarAppearsTransparent = true
+        window?.titleVisibility = .visible
         window?.isReleasedWhenClosed = false
         window?.contentView = content.view
         window?.delegate = self
         window?.level = .floating
         window?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        window?.backgroundColor = NSColor.windowBackgroundColor
+
+        // Apply dark appearance to window if dark mode
+        if scheme == "dark" {
+            window?.appearance = NSAppearance(named: .darkAqua)
+        } else if scheme == "light" {
+            window?.appearance = NSAppearance(named: .aqua)
+        }
 
         if let frameString = UserDefaults.standard.string(forKey: "windowFrame") {
             window?.setFrame(NSRectFromString(frameString), display: false)
