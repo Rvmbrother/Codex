@@ -1,2 +1,2 @@
-[ ] Finish report
-[ ] Send emails
+[ ] Finish report {45m}
+[ ] Send emails {5m}

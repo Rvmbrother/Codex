@@ -6,18 +6,32 @@ struct Task: Identifiable {
     var isTask: Bool
     var isDone: Bool
     let indent: Int
-    var scheduledTime: Date?
-    var actualStart: Date?
-    var actualEnd: Date?
+    var scheduledTime: Date? = nil
+    var duration: TimeInterval? = nil
+    var elapsed: TimeInterval = 0
+    var timerStart: Date? = nil
+    var actualStart: Date? = nil
+    var actualEnd: Date? = nil
 
     var text: String {
         var t = line.replacingOccurrences(of: "[x]", with: "")
             .replacingOccurrences(of: "[ ]", with: "")
             .trimmingCharacters(in: .whitespaces)
+        if let range = t.range(of: "\\{[^}]+\\}\\s*$", options: .regularExpression) {
+            t.removeSubrange(range)
+            t = t.trimmingCharacters(in: .whitespaces)
+        }
         if t.hasPrefix("-") {
             t = String(t.dropFirst()).trimmingCharacters(in: .whitespaces)
         }
         return t
+    }
+
+    var remainingTime: TimeInterval? {
+        guard let duration else { return nil }
+        let running = timerStart.map { Date().timeIntervalSince($0) } ?? 0
+        let total = elapsed + running
+        return max(0, duration - total)
     }
 }
 
@@ -32,12 +46,22 @@ struct TaskParser {
             let isDone = isTask && str.contains("[x]")
             let indent = str.prefix { $0 == " " || $0 == "\t" }.count
             let scheduled = parseTime(from: str)
-            tasks.append(Task(id: index, line: str, isTask: isTask, isDone: isDone, indent: indent, scheduledTime: scheduled, actualStart: nil, actualEnd: nil))
+            let duration = parseDuration(from: str)
+            tasks.append(Task(id: index,
+                              line: str,
+                              isTask: isTask,
+                              isDone: isDone,
+                              indent: indent,
+                              scheduledTime: scheduled,
+                              duration: duration,
+                              timerStart: nil,
+                              actualStart: nil,
+                              actualEnd: nil))
         }
         return tasks
     }
 
-    private static func parseTime(from line: String) -> Date? {
+    static func parseTime(from line: String) -> Date? {
         let regex = try? NSRegularExpression(pattern: "@([0-9]{1,2}:[0-9]{2})")
         guard let match = regex?.firstMatch(in: line,
                                            range: NSRange(line.startIndex..<line.endIndex, in: line)),
@@ -57,6 +81,25 @@ struct TaskParser {
         components.hour = timeComponents.hour
         components.minute = timeComponents.minute
         return Calendar.current.date(from: components)
+    }
+
+    static func parseDuration(from line: String) -> TimeInterval? {
+        let pattern = "\\{\\s*(?:([0-9]+)h)?\\s*(?:([0-9]+)m)?\\s*\\}\\s*$"
+        let regex = try? NSRegularExpression(pattern: pattern)
+        guard let match = regex?.firstMatch(in: line,
+                                           range: NSRange(line.startIndex..<line.endIndex, in: line)) else {
+            return nil
+        }
+        var seconds = 0
+        if let hrRange = Range(match.range(at: 1), in: line),
+           let hrs = Int(line[hrRange]) {
+            seconds += hrs * 3600
+        }
+        if let minRange = Range(match.range(at: 2), in: line),
+           let mins = Int(line[minRange]) {
+            seconds += mins * 60
+        }
+        return seconds > 0 ? TimeInterval(seconds) : nil
     }
 
     static func save(_ tasks: [Task], to url: URL) {
