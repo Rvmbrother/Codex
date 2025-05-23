@@ -1,5 +1,6 @@
 [ ] Finish report {45m}
 [ ] Send emails {5m}
+
 [ ] Automatic start at scheduled time {30m}
 [ ] System notifications for task start and end {15m}
 [ ] Calendar integration {20m}

@@ -234,10 +234,12 @@ struct ContentView: View {
 
                 Text(task.text).strikethrough(task.isDone)
                 Spacer()
+
                 if let duration = task.duration {
                     Text(formatDuration(duration))
                         .font(.title3.bold())
                         .monospacedDigit()
+
                 } else if let time = task.scheduledTime {
                     Text(time, style: .time)
                         .font(.footnote)
