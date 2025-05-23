@@ -15,6 +15,7 @@ Run `swift build -c release` from the repository root. The package uses Swift 6
 - When the window opens you see a list of Markdown files in `~/Documents/tasks`. Pick one to view its tasks.
  - The window can be resized like a normal macOS window and floats above full-screen apps so it's always accessible.
 - Lines containing `[ ]` or `[x]` become interactive checkboxes. Checking or unchecking immediately writes the change back to the selected file.
+ - Append a duration in curly braces, e.g. `{15m}` or `{1h30m}`, to show timer controls for a task. Use the buttons to start, pause or reset the countdown.
 
  - Lines beginning with a dash (`-`) are displayed without the bullet for a cleaner list.
 
