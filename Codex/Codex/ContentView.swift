@@ -9,6 +9,8 @@ struct ContentView: View {
     @State private var searchText = ""
     @State private var newTaskText = ""
 
+    @Environment(\.scenePhase) private var scenePhase
+
     @State private var tick = Date()
 
     private let defaultDuration: TimeInterval = 60 * 25
@@ -155,6 +157,11 @@ struct ContentView: View {
         }
         }
         .frame(minWidth: 300, minHeight: 400)
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active, let file = selectedFile {
+                loadTasks(from: file)
+            }
+        }
     }
 
     private func loadTaskFiles() {
@@ -229,18 +236,12 @@ struct ContentView: View {
 
                 Text(task.text).strikethrough(task.isDone)
                 Spacer()
-                if let remaining = task.remainingTime {
-                    Text(timeString(from: remaining))
-                        .font(.footnote)
+
+                if let duration = task.duration {
+                    Text(formatDuration(duration))
+                        .font(.title3.bold())
                         .monospacedDigit()
-                    Button(action: { startPauseTimer(task) }) {
-                        Image(systemName: task.timerStart == nil ? "play.circle" : "pause.circle")
-                    }
-                    .buttonStyle(.plain)
-                    Button(action: { resetTimer(task) }) {
-                        Image(systemName: "arrow.counterclockwise")
-                    }
-                    .buttonStyle(.plain)
+
                 } else if let time = task.scheduledTime {
                     Text(time, style: .time)
                         .font(.footnote)
@@ -263,6 +264,18 @@ struct ContentView: View {
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let totalSeconds = Int(duration)
+        let days = totalSeconds / 86400
+        let hours = (totalSeconds % 86400) / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        var parts: [String] = []
+        if days > 0 { parts.append("\(days)d") }
+        if hours > 0 { parts.append("\(hours)h") }
+        if minutes > 0 { parts.append("\(minutes)m") }
+        return parts.joined(separator: " ")
     }
 
     private func move(from source: IndexSet, to destination: Int) {
