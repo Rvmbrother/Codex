@@ -9,6 +9,8 @@ struct ContentView: View {
     @State private var searchText = ""
     @State private var newTaskText = ""
 
+    @Environment(\.scenePhase) private var scenePhase
+
     @State private var tick = Date()
 
     private let defaultDuration: TimeInterval = 60 * 25
@@ -77,7 +79,9 @@ struct ContentView: View {
                                         line: line,
                                         isTask: true,
                                         isDone: false,
-                                        indent: 0)
+                                        indent: 0,
+                                        scheduledTime: TaskParser.parseTime(from: line),
+                                        duration: TaskParser.parseDuration(from: line))
                         tasks.append(task)
                         if let url = selectedFile {
                             TaskParser.save(tasks, to: url)
@@ -110,6 +114,16 @@ struct ContentView: View {
                    let index = tasks.firstIndex(where: { $0.id == running.id }) {
                     tasks[index].actualStart = date
                 }
+                for i in tasks.indices {
+                    if let start = tasks[i].timerStart,
+                       let dur = tasks[i].duration {
+                        let passed = date.timeIntervalSince(start)
+                        if tasks[i].elapsed + passed >= dur {
+                            tasks[i].elapsed = dur
+                            tasks[i].timerStart = nil
+                        }
+                    }
+                }
             }
         } else {
 
@@ -141,6 +155,11 @@ struct ContentView: View {
             }
         }
         .frame(minWidth: 300, minHeight: 400)
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active, let file = selectedFile {
+                loadTasks(from: file)
+            }
+        }
     }
 
     private func loadTaskFiles() {
@@ -188,6 +207,22 @@ struct ContentView: View {
         }
     }
 
+    private func startPauseTimer(_ task: Task) {
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+        if let start = tasks[index].timerStart {
+            tasks[index].elapsed += Date().timeIntervalSince(start)
+            tasks[index].timerStart = nil
+        } else {
+            tasks[index].timerStart = Date()
+        }
+    }
+
+    private func resetTimer(_ task: Task) {
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+        tasks[index].elapsed = 0
+        tasks[index].timerStart = nil
+    }
+
     @ViewBuilder
     private func row(for task: Task) -> some View {
         if task.isTask {
@@ -198,8 +233,12 @@ struct ContentView: View {
                 .buttonStyle(.plain)
 
                 Text(task.text).strikethrough(task.isDone)
-                if let time = task.scheduledTime {
-                    Spacer()
+                Spacer()
+                if let duration = task.duration {
+                    Text(formatDuration(duration))
+                        .font(.title3.bold())
+                        .monospacedDigit()
+                } else if let time = task.scheduledTime {
                     Text(time, style: .time)
                         .font(.footnote)
                         .foregroundColor(.secondary)
@@ -221,6 +260,18 @@ struct ContentView: View {
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
         return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let totalSeconds = Int(duration)
+        let days = totalSeconds / 86400
+        let hours = (totalSeconds % 86400) / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        var parts: [String] = []
+        if days > 0 { parts.append("\(days)d") }
+        if hours > 0 { parts.append("\(hours)h") }
+        if minutes > 0 { parts.append("\(minutes)m") }
+        return parts.joined(separator: " ")
     }
 
     private func move(from source: IndexSet, to destination: Int) {
