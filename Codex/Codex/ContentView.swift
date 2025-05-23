@@ -77,7 +77,9 @@ struct ContentView: View {
                                         line: line,
                                         isTask: true,
                                         isDone: false,
-                                        indent: 0)
+                                        indent: 0,
+                                        scheduledTime: TaskParser.parseTime(from: line),
+                                        duration: TaskParser.parseDuration(from: line))
                         tasks.append(task)
                         if let url = selectedFile {
                             TaskParser.save(tasks, to: url)
@@ -109,6 +111,16 @@ struct ContentView: View {
                    running.actualStart == nil,
                    let index = tasks.firstIndex(where: { $0.id == running.id }) {
                     tasks[index].actualStart = date
+                }
+                for i in tasks.indices {
+                    if let start = tasks[i].timerStart,
+                       let dur = tasks[i].duration {
+                        let passed = date.timeIntervalSince(start)
+                        if tasks[i].elapsed + passed >= dur {
+                            tasks[i].elapsed = dur
+                            tasks[i].timerStart = nil
+                        }
+                    }
                 }
             }
         } else {
@@ -188,6 +200,22 @@ struct ContentView: View {
         }
     }
 
+    private func startPauseTimer(_ task: Task) {
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+        if let start = tasks[index].timerStart {
+            tasks[index].elapsed += Date().timeIntervalSince(start)
+            tasks[index].timerStart = nil
+        } else {
+            tasks[index].timerStart = Date()
+        }
+    }
+
+    private func resetTimer(_ task: Task) {
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+        tasks[index].elapsed = 0
+        tasks[index].timerStart = nil
+    }
+
     @ViewBuilder
     private func row(for task: Task) -> some View {
         if task.isTask {
@@ -198,8 +226,20 @@ struct ContentView: View {
                 .buttonStyle(.plain)
 
                 Text(task.text).strikethrough(task.isDone)
-                if let time = task.scheduledTime {
-                    Spacer()
+                Spacer()
+                if let remaining = task.remainingTime {
+                    Text(timeString(from: remaining))
+                        .font(.footnote)
+                        .monospacedDigit()
+                    Button(action: { startPauseTimer(task) }) {
+                        Image(systemName: task.timerStart == nil ? "play.circle" : "pause.circle")
+                    }
+                    .buttonStyle(.plain)
+                    Button(action: { resetTimer(task) }) {
+                        Image(systemName: "arrow.counterclockwise")
+                    }
+                    .buttonStyle(.plain)
+                } else if let time = task.scheduledTime {
                     Text(time, style: .time)
                         .font(.footnote)
                         .foregroundColor(.secondary)
