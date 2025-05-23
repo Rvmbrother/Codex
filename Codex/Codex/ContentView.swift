@@ -317,7 +317,11 @@ struct ContentView: View {
     private func addNewTask() {
         guard !newTaskText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         let line = "[ ] " + newTaskText
-        let task = Task(id: tasks.count,
+
+        // Use a unique id even after deletions
+        let nextId = (tasks.map(\.id).max() ?? -1) + 1
+
+        let task = Task(id: nextId,
                         line: line,
                         isTask: true,
                         isDone: false,
@@ -372,6 +376,11 @@ struct ContentView: View {
         let filtered = tasks.filter { searchText.isEmpty || $0.text.localizedCaseInsensitiveContains(searchText) }
         let ids = offsets.map { filtered[$0].id }
         tasks.removeAll { ids.contains($0.id) }
+
+        // Reassign ids to keep them unique and sequential
+        for index in tasks.indices {
+            tasks[index].id = index
+        }
         if let url = selectedFile {
             TaskParser.save(tasks, to: url)
         }
@@ -386,28 +395,21 @@ struct ContentView: View {
 
 
     private func toggle(_ task: Task) {
-        if let index = tasks.firstIndex(where: { $0.id == task.id }) {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                // Check current state BEFORE toggling
-                let wasChecked = tasks[index].isDone
-                
-                // Toggle the state
-                tasks[index].isDone.toggle()
-                
-                // Update the line text based on what it WAS, not what it IS now
-                if wasChecked {
-                    // Was checked, now unchecking: [x] -> [ ]
-                    tasks[index].line = tasks[index].line.replacingOccurrences(of: "[x]", with: "[ ]")
-                    tasks[index].actualEnd = nil
-                } else {
-                    // Was unchecked, now checking: [ ] -> [x]
-                    tasks[index].line = tasks[index].line.replacingOccurrences(of: "[ ]", with: "[x]")
-                    tasks[index].actualEnd = Date()
-                }
+        guard let index = tasks.firstIndex(where: { $0.id == task.id }) else { return }
+
+        withAnimation(.easeInOut(duration: 0.2)) {
+            tasks[index].isDone.toggle()
+
+            // Replace only the first checkbox occurrence to avoid altering other brackets
+            if let range = tasks[index].line.range(of: "\\[(x| )\\]", options: .regularExpression) {
+                tasks[index].line.replaceSubrange(range, with: tasks[index].isDone ? "[x]" : "[ ]")
             }
-            if let url = selectedFile {
-                TaskParser.save(tasks, to: url)
-            }
+
+            tasks[index].actualEnd = tasks[index].isDone ? Date() : nil
+        }
+
+        if let url = selectedFile {
+            TaskParser.save(tasks, to: url)
         }
     }
 
